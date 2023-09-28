@@ -10,6 +10,7 @@ import com.attornatus.person.services.PersonService;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -44,13 +45,16 @@ public class PersonControllerTest {
 
     PersonReturnedDto personReturnedDto = response.getBody();
 
+    assert personReturnedDto != null;
+    Address address = personReturnedDto.addresses().get(0);
+
     assertEquals(personMockDto.id(), personReturnedDto.id());
     assertEquals(personMockDto.name(), personReturnedDto.name());
     assertEquals(personMockDto.birthDate(), personReturnedDto.birthDate());
-    assertEquals(personMockDto.address().getPostalCode(), personReturnedDto.addressDto().postalCode());
-    assertEquals(personMockDto.address().getPublicPlace(), personReturnedDto.addressDto().publicPlace());
-    assertEquals(personMockDto.address().getNumber(), personReturnedDto.addressDto().number());
-    assertEquals(personMockDto.address().getCity(), personReturnedDto.addressDto().city());
+    assertEquals(personMockDto.address().getPostalCode(), address.getPostalCode());
+    assertEquals(personMockDto.address().getPublicPlace(), address.getPublicPlace());
+    assertEquals(personMockDto.address().getNumber(), address.getNumber());
+    assertEquals(personMockDto.address().getCity(), address.getCity());
 
   }
 }

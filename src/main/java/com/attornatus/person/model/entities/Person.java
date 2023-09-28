@@ -1,12 +1,16 @@
 package com.attornatus.person.model.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "person")
@@ -20,8 +24,9 @@ public class Person {
 
   private String birthDate;
 
-  @OneToOne(cascade = CascadeType.ALL)
-  private Address address;
+  @OneToMany(mappedBy = "person", cascade = CascadeType.ALL)
+  @JsonIgnore
+  private List<Address> addresses = new ArrayList<>();
 
   public Person() {}
 
@@ -29,8 +34,7 @@ public class Person {
     this.id = id;
     this.name = name;
     this.birthDate = birthDate;
-    this.address = new Address(address.getPublicPlace(), address.getPostalCode(), address.getNumber(),
-        address.getCity());
+    this.addAddress(address);
   }
 
   public Long getId() {
@@ -57,11 +61,17 @@ public class Person {
     this.birthDate = birthDate;
   }
 
-  public Address getAddress() {
-    return address;
+  public List<Address> getAddress() {
+    return addresses;
   }
 
-  public void setAddress(Address address) {
-    this.address = address;
+  public void addAddress(Address address) {
+    this.addresses.add(address);
+    address.setPerson(this);
+  }
+
+  public void removeAddress(Address address) {
+    this.addresses.remove(address);
+    address.setPerson(null);
   }
 }
