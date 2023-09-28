@@ -1,12 +1,15 @@
 package com.attornatus.person;
 
+import com.attornatus.person.exceptions.PersonNotFoundException;
 import com.attornatus.person.model.entities.Address;
 import com.attornatus.person.model.entities.Person;
 import com.attornatus.person.model.repositories.PersonRepository;
 import com.attornatus.person.services.PersonService;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,6 +39,24 @@ public class PersonServiceTest {
     assertEquals(personMock.getId(), createdPerson.getId());
     assertEquals(personMock.getBirthDate(), createdPerson.getBirthDate());
     assertEquals(personMock.getAddress(), createdPerson.getAddress());
+  }
+
+  @Test
+  public void getPersonByIdTest() throws PersonNotFoundException {
+    Person personMock = new Person(1L, "Luan Victor", "21/03/1990",
+        new Address("Rua das ruas", "88938-231", 40, "Camocim") );
+
+    when(personRepository.findById(1L)).thenReturn(Optional.of(personMock));
+
+    Person person = this.personService.getPersonById(1L);
+
+    assertEquals(person.getName(), personMock.getName());
+    assertEquals(person.getAddress(), personMock.getAddress());
+    assertEquals(person.getBirthDate(), personMock.getBirthDate());
+    assertEquals(person.getAddress(), personMock.getAddress());
+    assertThrows(PersonNotFoundException.class, () -> {
+      this.personService.getPersonById(999L);
+    });
   }
 
 }

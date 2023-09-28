@@ -1,5 +1,6 @@
 package com.attornatus.person.controller;
 
+import com.attornatus.person.exceptions.PersonNotFoundException;
 import com.attornatus.person.model.dtos.AddressDto;
 import com.attornatus.person.model.dtos.PersonDto;
 import com.attornatus.person.model.dtos.PersonReturnedDto;
@@ -8,6 +9,8 @@ import com.attornatus.person.model.entities.Person;
 import com.attornatus.person.services.PersonService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,4 +50,18 @@ public class PersonController {
 
     return ResponseEntity.status(HttpStatus.CREATED).body(personReturned);
   }
+
+  @GetMapping("/{personId}")
+  public ResponseEntity getPersonById(@PathVariable Long personId) {
+    try {
+
+      Person personFound = this.personService.getPersonById(personId);
+      return ResponseEntity.status(HttpStatus.OK).body(personFound);
+
+    } catch (PersonNotFoundException exception) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
+    }
+
+  }
+
 }
