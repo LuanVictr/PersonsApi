@@ -25,12 +25,43 @@ public class Person {
 
   public Person() {}
 
-  public Person(Long id, String name, String birthDate, String publicPlace,
-  String postalCode, int number, String city) {
+  public Person(Long id, String name, String birthDate, Address address) {
     this.id = id;
     this.name = name;
     this.birthDate = birthDate;
-    this.address = new Address(publicPlace, postalCode, number, city);
+    this.address = new Address(address.getPublicPlace(), address.getPostalCode(), address.getNumber(),
+        address.getCity());
   }
 
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getBirthDate() {
+    return birthDate;
+  }
+
+  public void setBirthDate(String birthDate) {
+    this.birthDate = birthDate;
+  }
+
+  public Address getAddress() {
+    return address;
+  }
+
+  public void setAddress(Address address) {
+    this.address = address;
+  }
 }

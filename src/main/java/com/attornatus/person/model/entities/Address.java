@@ -1,6 +1,8 @@
 package com.attornatus.person.model.entities;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -10,6 +12,7 @@ import jakarta.persistence.Table;
 public class Address {
 
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
   private String publicPlace;
   private String postalCode;
@@ -19,6 +22,8 @@ public class Address {
 
   @OneToOne(mappedBy = "address")
   private Person person;
+
+  public Address() {}
 
   public Address(String publicPlace, String postalCode,
       int number, String city) {
