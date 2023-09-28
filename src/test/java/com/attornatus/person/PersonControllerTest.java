@@ -1,6 +1,7 @@
 package com.attornatus.person;
 
 import com.attornatus.person.controller.PersonController;
+import com.attornatus.person.exceptions.PersonNotFoundException;
 import com.attornatus.person.model.dtos.PersonDto;
 import com.attornatus.person.model.dtos.PersonReturnedDto;
 import com.attornatus.person.model.entities.Address;
@@ -55,6 +56,21 @@ public class PersonControllerTest {
     assertEquals(personMockDto.address().getPublicPlace(), address.getPublicPlace());
     assertEquals(personMockDto.address().getNumber(), address.getNumber());
     assertEquals(personMockDto.address().getCity(), address.getCity());
+
+  }
+
+  @Test
+  public void getPersonByIdSuccess() throws PersonNotFoundException {
+
+    Person personMock = new Person(1L, "Luan Victor", "21/03/1990",
+        new Address("Rua das ruas", "88938-231", 40, "Camocim") );
+
+    when(personService.getPersonById(1L)).thenReturn(personMock);
+
+    ResponseEntity response = personController.getPersonById(1L);
+
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(personMock, response.getBody());
 
   }
 }
