@@ -3,6 +3,7 @@ package com.attornatus.person.controller;
 import com.attornatus.person.model.dtos.AddressDto;
 import com.attornatus.person.model.dtos.PersonDto;
 import com.attornatus.person.model.dtos.PersonReturnedDto;
+import com.attornatus.person.model.entities.Address;
 import com.attornatus.person.model.entities.Person;
 import com.attornatus.person.services.PersonService;
 import org.springframework.http.HttpStatus;
@@ -35,12 +36,14 @@ public class PersonController {
 
     Person createdPerson = this.personService.createPerson(personDto.toEntity());
 
-    AddressDto addressDto = new AddressDto(createdPerson.getAddress().getPublicPlace(),
-        createdPerson.getAddress().getPostalCode(), createdPerson.getAddress().getNumber(),
-        createdPerson.getAddress().getCity());
+    Address mainAddress = createdPerson.getAddress().get(0);
+
+    AddressDto addressDto = new AddressDto(mainAddress.getPublicPlace(),
+       mainAddress.getPostalCode(), mainAddress.getNumber(),
+        mainAddress.getCity());
 
     PersonReturnedDto personReturned = new PersonReturnedDto(createdPerson.getId(),
-        createdPerson.getName(), createdPerson.getBirthDate(), addressDto );
+        createdPerson.getName(), createdPerson.getBirthDate(), createdPerson.getAddress() );
 
     return ResponseEntity.status(HttpStatus.CREATED).body(personReturned);
   }
