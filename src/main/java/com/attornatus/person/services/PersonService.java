@@ -3,6 +3,7 @@ package com.attornatus.person.services;
 import com.attornatus.person.exceptions.PersonNotFoundException;
 import com.attornatus.person.model.entities.Person;
 import com.attornatus.person.model.repositories.PersonRepository;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,10 @@ public class PersonService {
     }
 
     return personOptional.get();
+  }
+
+  public List<Person> getAllPersons() {
+    return this.personRepository.findAll();
   }
 }
 

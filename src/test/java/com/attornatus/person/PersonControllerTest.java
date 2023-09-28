@@ -73,4 +73,17 @@ public class PersonControllerTest {
     assertEquals(personMock, response.getBody());
 
   }
+
+  @Test
+  public void getAllPersonsTest() {
+    List<Person> personListMock = List.of(new Person(1L, "Luan Victor", "21/03/1990",
+        new Address("Rua das ruas", "88938-231", 40, "Camocim") ));
+
+    when(personService.getAllPersons()).thenReturn(personListMock);
+
+    ResponseEntity<List<Person>> personsList = personController.getAllPersons();
+
+    assertEquals(HttpStatus.OK, personsList.getStatusCode());
+    assertEquals(personListMock, personsList.getBody());
+  }
 }

@@ -7,6 +7,7 @@ import com.attornatus.person.model.dtos.PersonReturnedDto;
 import com.attornatus.person.model.entities.Address;
 import com.attornatus.person.model.entities.Person;
 import com.attornatus.person.services.PersonService;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +32,7 @@ public class PersonController {
 
   /**
    * Cria uma nova pessoa (Person).
+   *
    * @param personDto camada Dto da entidade Person.
    * @return retorna um ResponseEntity utilizando a camada Dto de retorno de Person.
    */
@@ -42,11 +44,11 @@ public class PersonController {
     Address mainAddress = createdPerson.getAddress().get(0);
 
     AddressDto addressDto = new AddressDto(mainAddress.getPublicPlace(),
-       mainAddress.getPostalCode(), mainAddress.getNumber(),
+        mainAddress.getPostalCode(), mainAddress.getNumber(),
         mainAddress.getCity());
 
     PersonReturnedDto personReturned = new PersonReturnedDto(createdPerson.getId(),
-        createdPerson.getName(), createdPerson.getBirthDate(), createdPerson.getAddress() );
+        createdPerson.getName(), createdPerson.getBirthDate(), createdPerson.getAddress());
 
     return ResponseEntity.status(HttpStatus.CREATED).body(personReturned);
   }
@@ -64,4 +66,12 @@ public class PersonController {
 
   }
 
+  @GetMapping
+  public ResponseEntity<List<Person>> getAllPersons() {
+    List<Person> allPersons = this.personService.getAllPersons();
+
+    return ResponseEntity.status(HttpStatus.OK).body(allPersons);
+  }
+
 }
+

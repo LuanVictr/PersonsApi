@@ -5,6 +5,7 @@ import com.attornatus.person.model.entities.Address;
 import com.attornatus.person.model.entities.Person;
 import com.attornatus.person.model.repositories.PersonRepository;
 import com.attornatus.person.services.PersonService;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
@@ -57,6 +58,18 @@ public class PersonServiceTest {
     assertThrows(PersonNotFoundException.class, () -> {
       this.personService.getPersonById(999L);
     });
+  }
+
+  @Test
+  public void getAllPersonsTest() {
+    List<Person> personListMock = List.of(new Person(1L, "Luan Victor", "21/03/1990",
+        new Address("Rua das ruas", "88938-231", 40, "Camocim") ));
+
+    when(personRepository.findAll()).thenReturn(personListMock);
+
+    List<Person> persons = personService.getAllPersons();
+
+    assertEquals(personListMock, persons);
   }
 
 }
