@@ -6,9 +6,11 @@ import com.attornatus.person.model.dtos.PersonDto;
 import com.attornatus.person.model.dtos.PersonReturnedDto;
 import com.attornatus.person.model.entities.Address;
 import com.attornatus.person.model.entities.Person;
+import com.attornatus.person.model.repositories.PersonRepository;
 import com.attornatus.person.services.PersonService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
@@ -25,6 +27,9 @@ public class PersonControllerTest {
 
   @Autowired
   PersonController personController;
+
+  @MockBean
+  PersonRepository personRepository;
 
   @MockBean
   PersonService personService;
@@ -85,5 +90,27 @@ public class PersonControllerTest {
 
     assertEquals(HttpStatus.OK, personsList.getStatusCode());
     assertEquals(personListMock, personsList.getBody());
+  }
+
+  /**
+   * Para esses testes funcionarem é necessario que seja criada
+   * uma entidade no banco de dados para realizar o update.
+   * @throws PersonNotFoundException caso não seja encontrado nenhuma pessoa
+   * com o id, retorna uma exception.
+   */
+  @Test
+  public void updatePersonTest() throws PersonNotFoundException {
+    PersonDto personDtoMock = new PersonDto(1L, "Luan Victor", "21/03/1990",
+        new Address("Rua das ruas", "88938-231", 40, "Camocim"));
+
+    Person personToUpdate = new Person(1L, "Luan Victor de Araujo Silva", "21/03/1990",
+        new Address("Rua da Rua de baixo", "88321-185", 308, "Sobral"));
+
+    when(personService.updatePerson(1L, personDtoMock.toEntity())).thenReturn(personToUpdate);
+
+    ResponseEntity personUpdated = this.personController.updatePerson(1L, personDtoMock);
+
+    assertEquals(HttpStatus.OK, personUpdated.getStatusCode());
+
   }
 }

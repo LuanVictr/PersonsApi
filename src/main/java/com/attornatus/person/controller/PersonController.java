@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -71,6 +72,21 @@ public class PersonController {
     List<Person> allPersons = this.personService.getAllPersons();
 
     return ResponseEntity.status(HttpStatus.OK).body(allPersons);
+  }
+
+  @PutMapping("/{personId}")
+  public ResponseEntity updatePerson(@PathVariable Long personId,
+      @RequestBody PersonDto personInfo) {
+    try {
+
+      Person personUpdated = this.personService.updatePerson(personId, personInfo.toEntity());
+
+      return ResponseEntity.status(HttpStatus.OK).body(personUpdated);
+
+    } catch (PersonNotFoundException exception) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
+    }
+
   }
 
 }
