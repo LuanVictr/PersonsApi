@@ -8,6 +8,8 @@ import com.attornatus.person.services.PersonService;
 import java.util.List;
 import java.util.Optional;
 import org.aspectj.lang.annotation.Before;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,6 +27,12 @@ public class PersonServiceTest {
 
   @MockBean
   PersonRepository personRepository;
+
+  @BeforeAll
+  public void prepareTests() {
+    this.personRepository.save(new Person(1L, "Luan Victor", "21/03/1990",
+        new Address("Rua das ruas", "88938-231", 40, "Camocim") ));
+  }
 
   @Test
   public void createPersonTest() {
@@ -73,12 +81,6 @@ public class PersonServiceTest {
     assertEquals(personListMock, persons);
   }
 
-  /**
-   * Para esses testes funcionarem é necessario que seja criada
-   * uma entidade no banco de dados para realizar o update.
-   * @throws PersonNotFoundException caso não seja encontrado nenhuma pessoa
-   * com o id, retorna uma exception.
-   */
   @Test
   public void updatePersonTest() throws PersonNotFoundException {
     Person existingPerson = new Person(1L, "Luan Victor", "21/03/1990",
