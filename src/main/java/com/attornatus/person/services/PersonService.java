@@ -35,5 +35,15 @@ public class PersonService {
   public List<Person> getAllPersons() {
     return this.personRepository.findAll();
   }
+
+  public Person updatePerson(Long personId, Person newPerson) throws PersonNotFoundException {
+
+    Person person = this.getPersonById(personId);
+    person.removeAddress(person.getAddress().get(0));
+    person = newPerson;
+
+    return this.personRepository.save(person);
+
+  }
 }
 

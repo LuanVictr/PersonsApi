@@ -7,6 +7,7 @@ import com.attornatus.person.model.repositories.PersonRepository;
 import com.attornatus.person.services.PersonService;
 import java.util.List;
 import java.util.Optional;
+import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -70,6 +71,27 @@ public class PersonServiceTest {
     List<Person> persons = personService.getAllPersons();
 
     assertEquals(personListMock, persons);
+  }
+
+  /**
+   * Para esses testes funcionarem é necessario que seja criada
+   * uma entidade no banco de dados para realizar o update.
+   * @throws PersonNotFoundException caso não seja encontrado nenhuma pessoa
+   * com o id, retorna uma exception.
+   */
+  @Test
+  public void updatePersonTest() throws PersonNotFoundException {
+    Person existingPerson = new Person(1L, "Luan Victor", "21/03/1990",
+        new Address("Rua das ruas", "88938-231", 40, "Camocim") );
+
+    Person updatedPerson = new Person(1L, "Luan Victor de Araujo Silva", "21/03/2000",
+        new Address("Rua das ruas", "88938-231", 308, "Sobral") );
+
+    when(personRepository.findById(1L)).thenReturn(Optional.of(existingPerson));
+
+    Person result = personService.updatePerson(1L, updatedPerson);
+
+    assertEquals(updatedPerson, result);
   }
 
 }
