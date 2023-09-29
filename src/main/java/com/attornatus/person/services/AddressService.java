@@ -11,38 +11,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PersonService {
-
-  private PersonRepository personRepository;
+public class AddressService {
 
   private AddressRepository addressRepository;
 
+  private PersonRepository personRepository;
+
   @Autowired
-  public PersonService(PersonRepository personRepository) {
+  public AddressService(AddressRepository addressRepository,
+      PersonRepository personRepository) {
+    this.addressRepository = addressRepository;
     this.personRepository = personRepository;
   }
 
-  public Person createPerson(Person person) {
-    return this.personRepository.save(person);
-  }
+  public List<Address> addNewAddresses(Long id, Address newAddress) throws PersonNotFoundException {
 
-  public Person getPersonById(Long id) throws PersonNotFoundException {
     Optional<Person> personOptional = this.personRepository.findById(id);
-
-    if (personOptional.isEmpty()) {
-      throw new PersonNotFoundException();
-    }
-
-    return personOptional.get();
-  }
-
-  public List<Person> getAllPersons() {
-    return this.personRepository.findAll();
-  }
-
-  public Person updatePerson(Long personId, Person newPerson) throws PersonNotFoundException {
-
-    Optional<Person> personOptional = this.personRepository.findById(personId);
 
     if (personOptional.isEmpty()) {
       throw new PersonNotFoundException();
@@ -50,11 +34,11 @@ public class PersonService {
 
     Person person = personOptional.get();
 
-    person.removeAddress(person.getAddress().get(0));
-    person = newPerson;
+    Address newAddressCreated = this.addressRepository.save(newAddress);
 
-    return this.personRepository.save(person);
+        person.addAddress(newAddressCreated);
 
+    return person.getAddress();
   }
-}
 
+}
