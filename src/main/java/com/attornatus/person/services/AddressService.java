@@ -36,9 +36,23 @@ public class AddressService {
 
     Address newAddressCreated = this.addressRepository.save(newAddress);
 
-        person.addAddress(newAddressCreated);
+    person.addAddress(newAddressCreated);
+
+    this.personRepository.save(person);
 
     return person.getAddress();
+  }
+
+  public List<Address> getAllAddresses(Long personId) throws PersonNotFoundException {
+    Optional<Person> personOptional = this.personRepository.findById(personId);
+
+    if (personOptional.isEmpty()) {
+      throw new PersonNotFoundException();
+    }
+
+    return personOptional.get().getAddress();
+
+
   }
 
 }
