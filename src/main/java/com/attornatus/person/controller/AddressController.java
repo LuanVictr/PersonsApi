@@ -1,5 +1,6 @@
 package com.attornatus.person.controller;
 
+import com.attornatus.person.exceptions.AddressNotFoundException;
 import com.attornatus.person.exceptions.PersonNotFoundException;
 import com.attornatus.person.model.entities.Address;
 import com.attornatus.person.services.AddressService;
@@ -56,6 +57,24 @@ public class AddressController {
     } catch (PersonNotFoundException exception) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
+  }
+
+  @PostMapping("/main/{personId}/{addressId}")
+  public ResponseEntity setAddressAsMAin(@PathVariable Long personId,
+      @PathVariable Long addressId) {
+
+    try {
+
+      Address addressChanged = this.addressService.setAddressAsMain(addressId, personId);
+      return ResponseEntity.status(HttpStatus.OK).body(addressChanged);
+
+    } catch (PersonNotFoundException personNotFoundException) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(personNotFoundException.getMessage());
+
+    } catch (AddressNotFoundException addressNotFoundException) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(addressNotFoundException);
+    }
+
   }
 
 }
