@@ -1,9 +1,13 @@
 package com.attornatus.person.model.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
@@ -20,7 +24,12 @@ public class Address {
 
   private String city;
 
-  @OneToOne(mappedBy = "address")
+  @Column(name = "is_main")
+  private Boolean isMain;
+
+  @JsonIgnore
+  @ManyToOne
+  @JoinColumn(name = "person_id")
   private Person person;
 
   public Address() {}
@@ -32,10 +41,19 @@ public class Address {
     this.postalCode = postalCode;
     this.number = number;
     this.city = city;
+    this.isMain = false;
   }
 
   public Long getId() {
     return id;
+  }
+
+  public Boolean getIsMain() {
+    return isMain;
+  }
+
+  public void setIsMain(Boolean main) {
+    isMain = main;
   }
 
   public void setId(Long id) {

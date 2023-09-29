@@ -1,12 +1,19 @@
 package com.attornatus.person;
 
+import com.attornatus.person.exceptions.PersonNotFoundException;
 import com.attornatus.person.model.entities.Address;
 import com.attornatus.person.model.entities.Person;
 import com.attornatus.person.model.repositories.PersonRepository;
 import com.attornatus.person.services.PersonService;
+import java.util.List;
+import java.util.Optional;
+import org.aspectj.lang.annotation.Before;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,6 +27,12 @@ public class PersonServiceTest {
 
   @MockBean
   PersonRepository personRepository;
+
+  @BeforeAll
+  public void prepareTests() {
+    this.personRepository.save(new Person(1L, "Luan Victor", "21/03/1990",
+        new Address("Rua das ruas", "88938-231", 40, "Camocim") ));
+  }
 
   @Test
   public void createPersonTest() {
@@ -37,5 +50,50 @@ public class PersonServiceTest {
     assertEquals(personMock.getBirthDate(), createdPerson.getBirthDate());
     assertEquals(personMock.getAddress(), createdPerson.getAddress());
   }
+
+  @Test
+  public void getPersonByIdTest() throws PersonNotFoundException {
+    Person personMock = new Person(1L, "Luan Victor", "21/03/1990",
+        new Address("Rua das ruas", "88938-231", 40, "Camocim") );
+
+    when(personRepository.findById(1L)).thenReturn(Optional.of(personMock));
+
+    Person person = this.personService.getPersonById(1L);
+
+    assertEquals(person.getName(), personMock.getName());
+    assertEquals(person.getAddress(), personMock.getAddress());
+    assertEquals(person.getBirthDate(), personMock.getBirthDate());
+    assertEquals(person.getAddress(), personMock.getAddress());
+    assertThrows(PersonNotFoundException.class, () -> {
+      this.personService.getPersonById(999L);
+    });
+  }
+
+  @Test
+  public void getAllPersonsTest() {
+    List<Person> personListMock = List.of(new Person(1L, "Luan Victor", "21/03/1990",
+        new Address("Rua das ruas", "88938-231", 40, "Camocim") ));
+
+    when(personRepository.findAll()).thenReturn(personListMock);
+
+    List<Person> persons = personService.getAllPersons();
+
+    assertEquals(personListMock, persons);
+  }
+//
+//  @Test
+//  public void updatePersonTest() throws PersonNotFoundException {
+//    Person existingPerson = new Person(1L, "Luan Victor", "21/03/1990",
+//        new Address("Rua das ruas", "88938-231", 40, "Camocim") );
+//
+//    Person updatedPerson = new Person(1L, "Luan Victor de Araujo Silva", "21/03/2000",
+//        new Address("Rua das ruas", "88938-231", 308, "Sobral") );
+//
+//    when(personRepository.findById(1L)).thenReturn(Optional.of(existingPerson));
+//
+//    Person result = personService.updatePerson(1L, updatedPerson);
+//
+//    assertEquals(updatedPerson, result);
+//  }
 
 }
