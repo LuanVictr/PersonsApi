@@ -60,7 +60,7 @@ public class AddressController {
   }
 
   @PostMapping("/main/{personId}/{addressId}")
-  public ResponseEntity setAddressAsMAin(@PathVariable Long personId,
+  public ResponseEntity setAddressAsMain(@PathVariable Long personId,
       @PathVariable Long addressId) {
 
     try {
