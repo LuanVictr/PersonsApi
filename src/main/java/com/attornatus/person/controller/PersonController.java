@@ -18,9 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Cria PersonController injetando personService utilizando injecao de dependencia.
- */
 @RestController
 @RequestMapping("/persons")
 public class PersonController {
@@ -31,12 +28,6 @@ public class PersonController {
     this.personService = personService;
   }
 
-  /**
-   * Cria uma nova pessoa (Person).
-   *
-   * @param personDto camada Dto da entidade Person.
-   * @return retorna um ResponseEntity utilizando a camada Dto de retorno de Person.
-   */
   @PostMapping
   public ResponseEntity<PersonReturnedDto> createPerson(@RequestBody PersonDto personDto) {
 
