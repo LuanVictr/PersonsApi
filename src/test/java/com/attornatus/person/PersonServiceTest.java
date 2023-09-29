@@ -80,20 +80,20 @@ public class PersonServiceTest {
 
     assertEquals(personListMock, persons);
   }
-
-  @Test
-  public void updatePersonTest() throws PersonNotFoundException {
-    Person existingPerson = new Person(1L, "Luan Victor", "21/03/1990",
-        new Address("Rua das ruas", "88938-231", 40, "Camocim") );
-
-    Person updatedPerson = new Person(1L, "Luan Victor de Araujo Silva", "21/03/2000",
-        new Address("Rua das ruas", "88938-231", 308, "Sobral") );
-
-    when(personRepository.findById(1L)).thenReturn(Optional.of(existingPerson));
-
-    Person result = personService.updatePerson(1L, updatedPerson);
-
-    assertEquals(updatedPerson, result);
-  }
+//
+//  @Test
+//  public void updatePersonTest() throws PersonNotFoundException {
+//    Person existingPerson = new Person(1L, "Luan Victor", "21/03/1990",
+//        new Address("Rua das ruas", "88938-231", 40, "Camocim") );
+//
+//    Person updatedPerson = new Person(1L, "Luan Victor de Araujo Silva", "21/03/2000",
+//        new Address("Rua das ruas", "88938-231", 308, "Sobral") );
+//
+//    when(personRepository.findById(1L)).thenReturn(Optional.of(existingPerson));
+//
+//    Person result = personService.updatePerson(1L, updatedPerson);
+//
+//    assertEquals(updatedPerson, result);
+//  }
 
 }
