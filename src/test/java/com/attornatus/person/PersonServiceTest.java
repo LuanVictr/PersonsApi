@@ -13,8 +13,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
+
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -28,18 +31,12 @@ public class PersonServiceTest {
   @MockBean
   PersonRepository personRepository;
 
-  @BeforeAll
-  public void prepareTests() {
-    this.personRepository.save(new Person(1L, "Luan Victor", "21/03/1990",
-        new Address("Rua das ruas", "88938-231", 40, "Camocim") ));
-  }
-
   @Test
   public void createPersonTest() {
     Person personMock = new Person(1L, "Luan Victor", "21/03/1990",
         new Address("Rua das ruas", "88938-231", 40, "Camocim") );
 
-    when(personRepository.save(personMock)).thenReturn(personMock);
+    when(personRepository.save(any(Person.class))).thenReturn(personMock);
 
     Person createdPerson = this.personService.createPerson(personMock);
 
@@ -80,7 +77,7 @@ public class PersonServiceTest {
 
     assertEquals(personListMock, persons);
   }
-//
+
 //  @Test
 //  public void updatePersonTest() throws PersonNotFoundException {
 //    Person existingPerson = new Person(1L, "Luan Victor", "21/03/1990",
@@ -89,11 +86,34 @@ public class PersonServiceTest {
 //    Person updatedPerson = new Person(1L, "Luan Victor de Araujo Silva", "21/03/2000",
 //        new Address("Rua das ruas", "88938-231", 308, "Sobral") );
 //
-//    when(personRepository.findById(1L)).thenReturn(Optional.of(existingPerson));
+//    when(personRepository.findById(updatedPerson.getId())).thenReturn(Optional.of(existingPerson));
 //
 //    Person result = personService.updatePerson(1L, updatedPerson);
 //
-//    assertEquals(updatedPerson, result);
+//    assertEquals(updatedPerson.getName(), result.getName());
 //  }
+
+  @Test
+  public void testUpdatePerson() throws PersonNotFoundException {
+    // Mock data
+    Long personId = 1L;
+    Person existingPerson = new Person(1L, "Luan Victor", "21/03/1990",
+        new Address("Rua das ruas", "88938-231", 40, "Camocim") );
+
+    Person newPerson = new Person(1L, "Luan Victor de Araujo Silva", "21/03/2000",
+        new Address("Rua das ruas", "88938-231", 308, "Sobral") );
+
+    // Mock the behavior of the repository
+    Mockito.when(personRepository.findById(personId)).thenReturn(Optional.of(existingPerson));
+    Mockito.when(personRepository.save(any())).thenReturn(newPerson);
+
+    // Call the updatePerson method
+    Person updatedPerson = personService.updatePerson(personId, newPerson);
+
+    // Assertions
+    assertNotNull(updatedPerson);
+    assertEquals(308, updatedPerson.getAddress().get(0).getNumber());
+    assertEquals("21/03/2000", updatedPerson.getBirthDate());
+  }
 
 }

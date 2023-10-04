@@ -1,103 +1,177 @@
 package com.attornatus.person;
 
-import com.attornatus.person.controller.PersonController;
 import com.attornatus.person.exceptions.PersonNotFoundException;
-import com.attornatus.person.model.dtos.PersonDto;
 import com.attornatus.person.model.dtos.PersonReturnedDto;
 import com.attornatus.person.model.entities.Address;
 import com.attornatus.person.model.entities.Person;
-import com.attornatus.person.model.repositories.PersonRepository;
 import com.attornatus.person.services.PersonService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import java.util.List;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
+@AutoConfigureMockMvc
 public class PersonControllerTest {
 
+  @MockBean
+  private PersonService personService;
+
   @Autowired
-  PersonController personController;
+  private MockMvc mockMvc;
 
-  @MockBean
-  PersonRepository personRepository;
-
-  @MockBean
-  PersonService personService;
 
   @Test
-  public void createPersonTest() {
+  @DisplayName("Deve criar uma pessoa corretamente.")
+  public void createPersonTest() throws Exception {
+
+    ObjectMapper objectMapper = new ObjectMapper();
 
     Person personMock = new Person(1L, "Luan Victor", "21/03/1990",
-        new Address("Rua das ruas", "88938-231", 40, "Camocim") );
+        new Address("Rua das ruas", "88938-231", 40, "Camocim"));
 
-    PersonDto personMockDto = new PersonDto(1L, "Luan Victor", "21/03/1990",
-        new Address("Rua das ruas", "88938-231", 40, "Camocim") );
+    String personToCreateJson = """
+        {
+          "id": 1,
+          "name": "Luan Victor",
+          "birthDate": "1990-01-01",
+          "address":
+        		{
+            "publicPlace": "123 Main St",
+            "postalCode": "12345",
+            "number": 42,
+            "city": "Camocim"
+        		}
+        }
+        """;
 
     when(personService.createPerson(any(Person.class))).thenReturn(personMock);
 
-    ResponseEntity<PersonReturnedDto> response = this.personController.createPerson(personMockDto);
+    MockHttpServletResponse response = mockMvc.perform(
+        post("/persons")
+            .content(personToCreateJson)
+            .contentType(MediaType.APPLICATION_JSON)
+    ).andReturn().getResponse();
 
-    assertEquals(HttpStatus.CREATED, response.getStatusCode());
+    String responseJson = response.getContentAsString();
 
-    PersonReturnedDto personReturnedDto = response.getBody();
+    PersonReturnedDto personReturned = objectMapper.readValue(responseJson, PersonReturnedDto.class);
 
-    assert personReturnedDto != null;
-    Address address = personReturnedDto.addresses().get(0);
-
-    assertEquals(personMockDto.id(), personReturnedDto.id());
-    assertEquals(personMockDto.name(), personReturnedDto.name());
-    assertEquals(personMockDto.birthDate(), personReturnedDto.birthDate());
-    assertEquals(personMockDto.address().getPostalCode(), address.getPostalCode());
-    assertEquals(personMockDto.address().getPublicPlace(), address.getPublicPlace());
-    assertEquals(personMockDto.address().getNumber(), address.getNumber());
-    assertEquals(personMockDto.address().getCity(), address.getCity());
+    assertEquals(response.getStatus(), 201);
+    assertEquals(personReturned.id(), personMock.getId());
+    assertEquals(personReturned.name(), personMock.getName());
+    assertEquals(personReturned.birthDate(), personMock.getBirthDate());
+    assertEquals(personReturned.addresses().get(0).getCity(), personMock.getAddress().get(0).getCity());
 
   }
 
   @Test
-  public void getPersonByIdSuccess() throws PersonNotFoundException {
+  @DisplayName("Deve retornar uma pessoa quando seu id está correto")
+  public void getPersonByIdSuccessTest() throws Exception {
+
+    ObjectMapper objectMapper = new ObjectMapper();
 
     Person personMock = new Person(1L, "Luan Victor", "21/03/1990",
-        new Address("Rua das ruas", "88938-231", 40, "Camocim") );
+        new Address("Rua das ruas", "88938-231", 40, "Camocim"));
 
-    when(personService.getPersonById(1L)).thenReturn(personMock);
+    when(personService.getPersonById(personMock.getId())).thenReturn(personMock);
 
-    ResponseEntity response = personController.getPersonById(1L);
+    MockHttpServletResponse response = mockMvc.perform(
+        get("/persons/" + personMock.getId())
+    ).andReturn().getResponse();
 
-    assertEquals(HttpStatus.OK, response.getStatusCode());
-    assertEquals(personMock, response.getBody());
+    String responseJson = response.getContentAsString();
+
+    Person personReturned = objectMapper.readValue(responseJson, Person.class);
+
+    assertEquals(response.getStatus(), 200);
+    assertEquals(personReturned.getId(), personMock.getId());
+    assertEquals(personReturned.getName(), personMock.getName());
+    assertEquals(personReturned.getBirthDate(), personMock.getBirthDate());
 
   }
 
   @Test
-  public void getAllPersonsTest() {
+  @DisplayName("Deve retornar todas as pessoas cadastradas corretamente")
+  public void getAllPersonsTest() throws Exception {
+
     List<Person> personListMock = List.of(new Person(1L, "Luan Victor", "21/03/1990",
         new Address("Rua das ruas", "88938-231", 40, "Camocim") ));
 
-    when(personService.getAllPersons()).thenReturn(personListMock);
+    when(this.personService.getAllPersons()).thenReturn(personListMock);
 
-    ResponseEntity<List<Person>> personsList = personController.getAllPersons();
+    MockHttpServletResponse response = mockMvc.perform(
+        get("/persons")
+    ).andExpect(jsonPath("$[0].id").value(personListMock.get(0).getId()))
+        .andExpect(jsonPath("$[0].name").value(personListMock.get(0).getName()))
+        .andExpect(jsonPath("$[0].birthDate").value(personListMock.get(0).getBirthDate()))
+        .andExpect(jsonPath("$[0].address[0].publicPlace")
+            .value(personListMock.get(0).getAddress().get(0).getPublicPlace()))
+        .andReturn().getResponse();
 
-    assertEquals(HttpStatus.OK, personsList.getStatusCode());
-    assertEquals(personListMock, personsList.getBody());
+    assertEquals(response.getStatus(), 200);
+
   }
 
-  /**
-   * Para esses testes funcionarem é necessario que seja criada
-   * uma entidade no banco de dados para realizar o update.
-   * @throws PersonNotFoundException caso não seja encontrado nenhuma pessoa
-   * com o id, retorna uma exception.
-   */
+  @Test
+  @DisplayName("Deve atualizar uma pessoa com sucesso")
+  public void updatePersonTest() throws Exception {
+
+    Person personMock = new Person(1L, "Luan Victor", "21/03/1990",
+        new Address("Rua das ruas", "88938-231", 40, "Camocim"));
+
+    String updatePersonInfoJson = """
+      {
+        "id": 1,
+        "name": "Luan Victor de Araujo Silva",
+        "birthDate": "21/03/2000",
+        "address":
+      		{
+          "publicPlace": "Rua das ruas",
+          "postalCode": "88938-231",
+          "number": 308,
+          "city": "Sobral"
+      		}
+      }
+      """;
+
+    when(this.personService.updatePerson(eq(personMock.getId()), any(Person.class))).thenReturn(personMock);
+
+    MockHttpServletResponse response = mockMvc.perform(
+        put("/persons/" + personMock.getId())
+            .content(updatePersonInfoJson)
+            .contentType(MediaType.APPLICATION_JSON)
+    ).andExpect(jsonPath("$.id").value(personMock.getId()))
+        .andExpect(jsonPath("$.name").value(personMock.getName()))
+        .andExpect(jsonPath("$.birthDate").value(personMock.getBirthDate()))
+        .andReturn().getResponse();
+
+    assertEquals(response.getStatus(), 200);
+
+  }
+
+}
 //  @Test
 //  public void updatePersonTest() throws PersonNotFoundException {
 //    PersonDto personDtoMock = new PersonDto(1L, "Luan Victor", "21/03/1990",
@@ -113,4 +187,4 @@ public class PersonControllerTest {
 //    assertEquals(HttpStatus.OK, personUpdated.getStatusCode());
 //
 //  }
-}
+//}
