@@ -1,6 +1,6 @@
 # Api Persons
 
-## Api criada no teste Tecnico da attronatus
+## Api criada para controle de pessoas
 
 ### Endpoints de Persons
 
